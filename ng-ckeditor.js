@@ -114,28 +114,41 @@
                         });
                     };
 
-                    //instance.on('pasteState',   setModelData);
-                    instance.on('change', setModelData);
-                    instance.on('blur', setModelData);
-                    //instance.on('key',          setModelData); // for source view
-
                     instance.on('instanceReady', function () {
-                        scope.$broadcast('ckeditor.ready');
-                        scope.$apply(function () {
-                            onUpdateModelData(true);
-                        });
+						/* 
+						* NH: 
+						* When instance is ready, first clear up instance data so
+						* we don't get original HTML values in ng-model.
+						* When instance calls setData callback, apply model data and
+						* register change events.
+						*/
+						
+						instance.setData(EMPTY_HTML, function() {
+							scope.$broadcast("ckeditor.ready");
+							scope.$apply(function() {
+								onUpdateModelData(true);
+							});
 
-                        instance.document.on('keyup', setModelData);
+							//instance.on('pasteState',   setModelData);
+							instance.on('change',       setModelData);
+							instance.on('blur',         setModelData);
+							//instance.on('key',          setModelData); // for source view
+
+							instance.document.on("keyup", setModelData);
+						});
                     });
                     instance.on('customConfigLoaded', function () {
                         configLoaderDef.resolve();
                     });
 
                     ngModel.$render = function () {
-                        data.push(ngModel.$viewValue);
-                        if (isReady) {
-                            onUpdateModelData();
-                        }
+						/* NH: only push view value if it is defined */
+						if (ngModel.$viewValue) {
+							data.push(ngModel.$viewValue);
+							if (isReady) {
+								onUpdateModelData();
+							}
+						}
                     };
                 };
 
