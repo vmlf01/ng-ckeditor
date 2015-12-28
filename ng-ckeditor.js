@@ -127,6 +127,7 @@
 							/* NH: allow $render to update model data from now on */
                             isReady = true;
 							scope.$broadcast("ckeditor.ready");
+							scope.$emit("ckeditor.ready");
 							scope.$apply(function() {
 								onUpdateModelData(true);
 							});
